@@ -1,160 +1,211 @@
 import React from 'react';
-import { withStyles } from '@material-ui/core/styles';
-import InputLabel from '@material-ui/core/InputLabel';
-import InputAdornment from '@material-ui/core/InputAdornment';
-import FormControl from '@material-ui/core/FormControl';
-import AccountCircle from '@material-ui/icons/AccountCircle';
-import Paper from '@material-ui/core/Paper';
-import styles from '../styles/Content';
-import IconButton from '@material-ui/core/IconButton';
-import OutlinedInput from '@material-ui/core/OutlinedInput';
-import Visibility from '@material-ui/icons/Visibility';
-import VisibilityOff from '@material-ui/icons/VisibilityOff';
-import Button from '@material-ui/core/Button';
-import Table from '@material-ui/core/Table';
-import TableBody from '@material-ui/core/TableBody';
-import TableCell from '@material-ui/core/TableCell';
-import TableContainer from '@material-ui/core/TableContainer';
-import TableRow from '@material-ui/core/TableRow';
+import {connect} from 'react-redux';
+ 
+import * as actions from '../../store/actions';
+//import styles from '../styles/Content';
+
+import SignUpForm from './SignUpForm';
+import Axios from 'axios';
+
+//import {TableRow} from "@material-ui/core";
+//import {TableCell} from "@material-ui/core";
+//import {CircularProgress} from "@material-ui/core";
+
 
 class SignUpContainer extends React.Component {
     constructor(props){
         super(props);
         this.state = {
-            showPassword : false
+          
+          showPassword : false,
+          passCheck : false,
+          startDate: new Date(),
+          users : [],
+          idCheck : false,
+          permission :'',
+          id: '',
+          password : '',
+          gender : ''
         }
-    }
-
-    handleChange = (e) => { 
-        this.setState({
-            [e.target.name]: e.target.value
-        });
     };
 
-    handleClickShowPassword = (e) => {
+   
+
+
+    componentDidMount() {
+      Axios.get('/users')
+      .then(users => {
+        console.log("didmount"+JSON.stringify(users));
         this.setState({
-            showPassword : true
+          users : users
         })
-      };
+      })
+      .catch((err) => {
+        console.error("axios Error : " + err)
+      });
+    }
     
-      handleMouseDownPassword = event => {
-        this.setState({
-            showPassword : false
+    handleGoBack = () =>{
+      this.props.history.goBack();
+    }
+
+    handlePermission = (e) => {
+      this.setState({
+        permission : e.target.value
+      })
+    } 
+
+    //아이디체크
+    handleIdCheck = (e) =>{
+      var id = e.target.value;
+      var user = this.state.users.data;
+      
+      //유저테이블에서 불러온 유저데이터의 배열에서 입력한id값을 필터링
+      var newArr = user.filter(function(uid){    
+        return uid.userId === id;
+        //배열의 유저 아이디에 입력한 id가 존재하는지를 리턴
+      });  
+      //아이디 체크 진행중0316
+      if(newArr.length === 1 ){
+        this.setState ({
+          idCheck : false
         })
-      };
+      }else{
+        this.setState ({
+          idCheck : true
+        })
+      }
+      console.log("Filter results:",newArr);
+      console.log("result : ",newArr + this.state.idCheck);
+    }
 
+    //달력
+    handleDateChange = date => {
+      this.setState({
+        startDate: date
+      });
+    };
 
+    //비밀번호 정규식 체크
+    handleFocusOut = (e) =>{
+
+      var pass = e.target.value;
+      var check_pas = /^(?=.*[a-zA-Z])(?=.*[!@#$%^*+=-])(?=.*[0-9]).{8,16}$/;
+
+      if(check_pas.test(pass)) { 
+        return this.setState({
+          passCheck : true
+        })
+      }else{ 
+        alert("비밀번호는 영어, 숫자, 특수문자 혼용으로 8~16자만 가능합니다.");
+        return this.setState({
+          passCheck : false
+        })
+      }
+
+    };
+
+  handleChange = (e) => { 
+      this.setState({
+          [e.target.id]: e.target.value
+      });
+
+      
+  };
+
+  handleClickShowPassword = (e) => {
+      this.setState({
+          showPassword : true
+      })
+    };
+    
+  handleMouseDownPassword = event => {
+    this.setState({
+        showPassword : false
+    })
+  };
+
+  handleSubmit = (e) => {
+    e.preventDefault();
+    const form = this.state;
+    console.log(form);
+    this.props.submitButton(form);
+    alert("회원가입 완료. 메인페이지로 이동합니다.");
+    this.props.history.push("/");
+  
+
+    
+
+    // var id = this.state.id;
+    // var pass = this.state.password;
+    // var gender = this.state.gender;
+    // var birthday = this.state.birthday;
+
+    // if(id === ''){
+    //   alert("아이디를 입력하세요");
+    //   return false;
+    // }else if(this.state.idCheck=== false){
+    //   alert("중복된 아이디입니다.")
+    //   return false;
+    // }else if(pass === ''){
+    //   alert("비밀번호를 입력하세요");
+    //   return false;
+    // }else if(gender === ''){
+    //   alert("성별을 입력하세요");
+    //   return false;
+    // }else if(birthday === ''){
+    //   alert("생일을 입력하세요");
+    //   return false;
+    // }else{
+    //   e.preventDefault();
+    //   const form = this.state;
+    //   console.log(form);
+    //   this.props.submitButton(form);
+    //   //this.props.history.push("/SignIn");
+    // }
+  }
+    
+   
+    
     render() {
-        const { classes } = this.props;
-
-        return (
-            <div>
-                <TableContainer component={Paper} className={classes.paper}>
-                    <Table className={classes.table} aria-label="simple table">
-                        <TableBody>
-                        <TableRow>
-                            <TableCell>ID</TableCell>
-                            <TableCell>
-                            <FormControl className={classes.margin} variant="outlined">
-                            <OutlinedInput
-                                id="id" placeholder="ID"
-                                onChange={this.handleChange}
-                                startAdornment={<InputAdornment position="start"> <AccountCircle /> </InputAdornment>}
-                            />
-                            </FormControl>
-                            </TableCell>
-                        </TableRow>
-                        <TableRow>
-                            <TableCell>Password</TableCell>
-                            <TableCell>
-                            <FormControl className={classes.margin} variant="outlined">
-                                <InputLabel htmlFor="password">Password</InputLabel>
-                                <OutlinedInput id="password" type={this.state.showPassword ? 'text' : 'password'}
-                                    onChange={this.handleChange}
-                                    endAdornment={
-                                    <InputAdornment position="end">
-                                        <IconButton
-                                        aria-label="toggle password visibility"
-                                        onClick={this.handleClickShowPassword}
-                                        onMouseDown={this.handleMouseDownPassword}
-                                        edge="end"
-                                        >
-                                        {this.state.showPassword ? <Visibility /> : <VisibilityOff />}
-                                        </IconButton>
-                                    </InputAdornment>
-                                    }
-                                    labelWidth={70}
-                                />
-                            </FormControl>
-                            </TableCell>
-                        </TableRow>
-                        <TableRow>
-                            <TableCell>UserName</TableCell>
-                            <TableCell>
-                            <FormControl className={classes.margin} variant="outlined">
-                            <OutlinedInput
-                                id="userName" placeholder="UserName"
-                                onChange={this.handleChange}
-                                startAdornment={<InputAdornment position="start"> <AccountCircle /> </InputAdornment>}
-                            />
-                            </FormControl>
-                            </TableCell>
-                        </TableRow>
-                        <TableRow>
-                            <TableCell>Phone</TableCell>
-                            <TableCell>
-                            <FormControl className={classes.margin} variant="outlined">
-                            <OutlinedInput
-                                id="phone" placeholder="Phone"
-                                onChange={this.handleChange}
-                                startAdornment={<InputAdornment position="start"> <AccountCircle /> </InputAdornment>}
-                            />
-                            </FormControl>
-                            </TableCell>
-                        </TableRow>
-                        <TableRow>
-                            <TableCell>Gender</TableCell>
-                            <TableCell>
-                            <FormControl className={classes.margin} variant="outlined">
-                            <OutlinedInput
-                                id="gender" placeholder="Gender"
-                                onChange={this.handleChange}
-                                startAdornment={<InputAdornment position="start"> <AccountCircle /> </InputAdornment>}
-                            />
-                            </FormControl>
-                            </TableCell>
-                        </TableRow>
-                        <TableRow>
-                            <TableCell>Email</TableCell>
-                            <TableCell>
-                            <FormControl className={classes.margin} variant="outlined">
-                            <OutlinedInput
-                                id="email" placeholder="Email"
-                                onChange={this.handleChange}
-                                startAdornment={<InputAdornment position="start"> <AccountCircle /> </InputAdornment>}
-                            />
-                            </FormControl>
-                            </TableCell>
-                        </TableRow>
-                        <TableRow>
-                            <FormControl className={classes.margin} variant="outlined">
-                            <Button variant="contained" color="primary" className={classes.addUser} type="submit">
-                                회원가입
-                            </Button>
-                            </FormControl>
-                            <FormControl className={classes.margin} variant="outlined">
-                            <Button variant="contained" color="secondary" className={classes.addUser} type="button">
-                                이전
-                            </Button>
-                            </FormControl>
-                        </TableRow>
-                        </TableBody>
-                    </Table>
-                </TableContainer>
-            </div>
-        );
+      console.log(this.state);
+        return(
+          <div>
+            <SignUpForm 
+              handleSubmit={this.handleSubmit}
+              handleMouseDownPassword = {this.handleMouseDownPassword}
+              handleClickShowPassword = {this.handleClickShowPassword}
+              handleChange = {this.handleChange}
+              handleFocusOut = {this.handleFocusOut}
+              handleDateChange = {this.handleDateChange}
+              state = {this.state}
+              handleIdCheck = {this.handleIdCheck}
+              handlePermission = {this.handlePermission}
+              handleGoBack = {this.handleGoBack}
+            />
+          </div>
+        )
     }
 
 }
 
-export default withStyles(styles)(SignUpContainer);
+const mapStateToProps = (state) => {
+  return {
+      data : state.signUp.data,
+      error: state.signUp.error
+    }
+  }
+
+const mapDispatchToProps = (dispatch) => {
+  return {
+        submitButton : (form) => {
+        dispatch({type: actions.SIGNUP, payload : form});
+      }
+    }
+  }
+
+
+  export default connect(
+    mapStateToProps,
+    mapDispatchToProps
+    )(SignUpContainer);

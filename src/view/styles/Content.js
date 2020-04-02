@@ -53,7 +53,7 @@ const styles = theme => ({
       marginBottom: 12,
     },
     progress : {
-      margin:theme.spacing.unit * 2
+      margin:theme.spacing(2)
     },
     table: {
       minWidth: 1080

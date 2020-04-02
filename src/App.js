@@ -1,5 +1,6 @@
 import React, {Component} from 'react';
 import { Route, BrowserRouter as Router } from 'react-router-dom';
+import { Switch } from 'react-router-dom';
 import { theme , drawerWidth , styles } from './view/styles/Main';
 import Header from './view/Template/Header';
 import Menu from './view/Template/Menu';
@@ -21,8 +22,21 @@ class App extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      mobileOpen : false
+      mobileOpen : false,
+      logged : false
     }
+  }
+
+  onLogin = () => {
+    this.setState({
+      logged : true
+    })
+  }
+
+  onLogout = () => {
+    this.setState({
+      logged : false
+    })
   }
 
   handleDrawerToggle = () => {
@@ -31,8 +45,19 @@ class App extends Component {
     })
   };
 
+  componentDidMount(){
+    const id = window.sessionStorage.getItem('id');
+    if(id !== null){
+      this.setState({
+        logged : true
+      })
+    }
+    console.log(this.state.logged);
+  }
+
   render() {
     const { classes } = this.props;
+    const {logged} = this.state;
 
       return (
         <Router>
@@ -50,17 +75,17 @@ class App extends Component {
               </Hidden>
             </nav>
             <div className={classes.app}>
-              <Header onDrawerToggle={this.handleDrawerToggle} />
+              <Header onDrawerToggle={this.handleDrawerToggle} logged={logged}/>
             <main className={classes.main}>
-            <switch>
-            <Route exact path="/" component={Main}/>
-            <Route exact path="/SignUp" component={SignUpContainer}/>
-            <Route exact path="/SignIn" component={SignInContainer}/>
-            <Route exact path="/Doodle/Write" component={WriteContainer}/>
-            <Route exact path="/Doodle/List" component={ListContainer}/>
-            <Route exact path="/Doodle/Search" component={SearchContainer}/>
-            <Route exact path="/Doodle/Paperbase" component={Paperbase}/>
-            </switch>
+            <Switch>
+              <Route exact path="/" component={Main}/>
+              <Route exact path="/SignUp" component={SignUpContainer}/>
+              <Route exact path="/SignIn" component={SignInContainer}/>
+              <Route exact path="/Doodle/Write" component={WriteContainer}/>
+              <Route exact path="/Doodle/List" component={ListContainer}/>
+              <Route exact path="/Doodle/Search" component={SearchContainer}/>
+              <Route exact path="/Doodle/Paperbase" component={Paperbase}/>
+            </Switch>
             </main>
               <footer className={classes.footer}> <Footer /> </footer>
             </div>            
