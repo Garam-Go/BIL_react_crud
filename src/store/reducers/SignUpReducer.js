@@ -4,6 +4,7 @@ const initState = {
   data: {}
 }
  
+// action에서 보내준 값을 각 type값에 따라 저장
 export const reducer = (state=initState, action) => {
   switch(action.type){
     case actions.SIGNUP:

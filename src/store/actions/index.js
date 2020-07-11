@@ -16,8 +16,10 @@ export const SIGNUP_FAIL = 'SIGNUP_FAIL';
 export const SIGNIN = 'SIGNIN';
 export const SIGNIN_SUCCESS = 'SIGNIN_SUCCESS';
 export const SIGNIN_FAIL = 'SIGNIN_FAIL';
- //store에 dispatch를 하기위한 액션
- //dispatch 라는 함수에는 액션을 파라미터로 전달. ex) dispatch(action)
+//store에 dispatch를 하기위한 액션
+//dispatch 라는 함수에는 액션을 파라미터로 전달. ex) dispatch(action)
+// compoent에서 dispatch를 통해 값을 입력하면 받아온거값을 store로 저장
+
 export function list(payload){
   return {
     type: LIST,
@@ -102,6 +104,7 @@ export function searchFail(error){
   }
 }
 
+// 회원가입 액션
 export function signUp(payload){
   return {
     type: SIGNUP,
